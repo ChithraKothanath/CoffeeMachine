@@ -8,11 +8,13 @@ namespace Coffee_Machine_API.Models
 
         public DateTimeOffset prepared { get; set; }
 
-        public BrewCoffee() {
-            message = "Your piping hot coffee is ready";
+        
+        public BrewCoffee(string msg)
+        {
+            message = msg;
             prepared = DateTime.Now.ToUniversalTime();
         }
-       
+
 
     }
 }

@@ -14,35 +14,41 @@ namespace Coffee_Machine_API.Controllers
     {
      
         private readonly ICoffeeService _coffeeService;
+        private readonly IWeatherService _weatherService;
 
 
         #region Constructor
-        public CoffeeMachineController(ICoffeeService coffeeService)
+        public CoffeeMachineController(ICoffeeService coffeeService, IWeatherService weatherService)
         {
             _coffeeService = coffeeService;
+            _weatherService = weatherService;
         }
         #endregion
 
 
         [HttpGet]
         [Route("/brew-coffee")]
-        public  IActionResult GetBrewCoffee()
+        public  async Task< IActionResult> GetBrewCoffee()
         {
             var creationCount =  _coffeeService.GetBrewCoffeeCount();
-          
+            var temperature = await _weatherService.GetTemperature();
 
-                if (_coffeeService.IsAprilFirst())
-                {
-                    return StatusCode(StatusCodes.Status418ImATeapot,null);
-                }
-                else if (_coffeeService.IsResetCoffeeMachine())
-                {
-                    return StatusCode(StatusCodes.Status503ServiceUnavailable,null);
-                }
-                else
-                {
-                    return Ok(new BrewCoffee());
-                }
+            if (_coffeeService.IsAprilFirst())
+            {
+                return StatusCode(StatusCodes.Status418ImATeapot, null);
+            }
+            else if (_coffeeService.IsResetCoffeeMachine())
+            {
+                return StatusCode(StatusCodes.Status503ServiceUnavailable, null);
+            }
+            else if (temperature < 30)
+            {
+                return Ok(new BrewCoffee("Your piping hot coffee is ready"));
+            }
+            else
+            {
+                return Ok(new BrewCoffee("Your refreshing iced coffee is ready"));
+            }
         }
 
        

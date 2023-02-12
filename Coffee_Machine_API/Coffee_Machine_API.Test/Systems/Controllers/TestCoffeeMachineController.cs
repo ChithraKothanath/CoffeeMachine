@@ -17,18 +17,21 @@ namespace Coffee_Machine_API.Test.Systems.Controllers
     public class TestCoffeeMachineController
     {
 
-        public TestCoffeeMachineController() { }
+        public TestCoffeeMachineController() {
+           
+        }
 
         [Fact]
-        public void GetBrewCoffee_ShouldReturn200StatusOK()
+        public async Task GetBrewCoffee_ShouldReturn200StatusOK()
         {
             ///Arrange
             var coffeeservice = new Mock<ICoffeeService>();
+            var weatherservice = new Mock<IWeatherService>();
             coffeeservice.Setup(_ => _.GetBrewCoffeeCount()).Returns(1);
-            var sut = new CoffeeMachineController(coffeeservice.Object);
+            var sut = new CoffeeMachineController(coffeeservice.Object, weatherservice.Object);
 
             ///Act
-            var result = sut.GetBrewCoffee();
+            var result = await sut.GetBrewCoffee();
 
             ///Assert
             result.GetType().Equals(typeof(OkObjectResult));
@@ -39,15 +42,16 @@ namespace Coffee_Machine_API.Test.Systems.Controllers
            
         }
         [Fact]
-        public void GetBrewCoffee_ShouldReturn503Status()
+        public async Task GetBrewCoffee_ShouldReturn503Status()
         {
             ///Arrange
             var coffeeservice = new Mock<ICoffeeService>();
+            var weatherservice = new Mock<IWeatherService>();
             coffeeservice.Setup(_ => _.IsResetCoffeeMachine()).Returns(true);
-            var sut = new CoffeeMachineController(coffeeservice.Object);
+            var sut = new CoffeeMachineController(coffeeservice.Object,weatherservice.Object);
 
             ///Act
-            var result = sut.GetBrewCoffee();
+            var result = await sut.GetBrewCoffee();
 
             ///Assert
             var statuscode = (result as ObjectResult).StatusCode;
@@ -56,21 +60,43 @@ namespace Coffee_Machine_API.Test.Systems.Controllers
 
         }
         [Fact]
-        public void GetBrewCoffee_ShouldReturn418Status()
+        public async Task GetBrewCoffee_ShouldReturn418Status()
         {
             ///Arrange
 
             var coffeeservice = new Mock<ICoffeeService>();
+            var weatherservice = new Mock<IWeatherService>();
             coffeeservice.Setup(_ => _.IsAprilFirst()).Returns(true);
-            var sut = new CoffeeMachineController(coffeeservice.Object);
+            var sut = new CoffeeMachineController(coffeeservice.Object, weatherservice.Object);
 
             ///Act
-            var result = sut.GetBrewCoffee();
+            var result = await sut.GetBrewCoffee();
 
 
             ///Assert
             var statuscode = (result as ObjectResult).StatusCode;
             Assert.Equal(418, statuscode);
+
+        }
+        [Fact]
+        public async Task GetBrewCoffee_ShouldReturn200StatusTempGreaterthan30()
+        {
+            ///Arrange
+            var coffeeservice = new Mock<ICoffeeService>();
+            var weatherservice = new Mock<IWeatherService>();
+            weatherservice.Setup(_ => _.GetTemperature()).ReturnsAsync(31);
+            var sut = new CoffeeMachineController(coffeeservice.Object, weatherservice.Object);
+
+            ///Act
+            var result = await sut.GetBrewCoffee();
+
+
+            ///Assert
+            result.GetType().Equals(typeof(OkObjectResult));
+            ((OkObjectResult)result).Value.Should().BeOfType<BrewCoffee>();
+            ((BrewCoffee)((OkObjectResult)result).Value).message.Equals("Your refreshing iced coffee is ready");
+            var statuscode = (result as OkObjectResult).StatusCode;
+            Assert.Equal(200, statuscode);
 
         }
     }
