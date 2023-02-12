@@ -41,7 +41,7 @@ namespace Coffee_Machine_API.Controllers
             {
                 return StatusCode(StatusCodes.Status503ServiceUnavailable, null);
             }
-            else if (temperature < 30)
+            else if (temperature <= 30)
             {
                 return Ok(new BrewCoffee("Your piping hot coffee is ready"));
             }
