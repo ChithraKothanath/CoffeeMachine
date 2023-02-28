@@ -32,5 +32,18 @@ namespace Coffee_Machine_API.Models
 
     }
 
+    public static class CoffeeStaticService
+    {
+        public static bool IsAprilFirst()
+        {
+            if (DateTime.Now.Day == 1 && DateTime.Now.Month == 4)
+            {
+                return true;
+            }
+            return false;
+        }
+       
+    }
+
    
 }

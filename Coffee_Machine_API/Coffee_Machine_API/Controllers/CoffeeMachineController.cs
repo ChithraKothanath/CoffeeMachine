@@ -31,9 +31,9 @@ namespace Coffee_Machine_API.Controllers
         public  async Task< IActionResult> GetBrewCoffee()
         {
             var creationCount =  _coffeeService.GetBrewCoffeeCount();
-            var temperature = await _weatherService.GetTemperature();
+           
 
-            if (_coffeeService.IsAprilFirst())
+            if (CoffeeStaticService.IsAprilFirst())
             {
                 return StatusCode(StatusCodes.Status418ImATeapot, null);
             }
@@ -41,7 +41,7 @@ namespace Coffee_Machine_API.Controllers
             {
                 return StatusCode(StatusCodes.Status503ServiceUnavailable, null);
             }
-            else if (temperature <= 30)
+            else if (await _weatherService.GetTemperature() <= 30)
             {
                 return Ok(new BrewCoffee("Your piping hot coffee is ready"));
             }
